@@ -21,7 +21,15 @@ export default async function handler(req, res) {
 
     try {
       if (action === 'fulfill') {
-        // Paso 1: obtener fulfillment_orders del pedido
+        // Paso 1: obtener la primera location de la tienda
+        const locRes = await fetch(
+          `https://${SHOP}/admin/api/2024-01/locations.json`,
+          { headers: { 'X-Shopify-Access-Token': TOKEN } }
+        );
+        const locData = await locRes.json();
+        const locationId = locData.locations?.[0]?.id;
+
+        // Paso 2: obtener fulfillment_orders del pedido
         const foRes = await fetch(
           `https://${SHOP}/admin/api/2024-01/orders/${orderId}/fulfillment_orders.json`,
           { headers: { 'X-Shopify-Access-Token': TOKEN } }
@@ -39,7 +47,20 @@ export default async function handler(req, res) {
           return res.status(200).json({ ok: true, msg: 'No hay fulfillment orders abiertas' });
         }
 
-        // Paso 2: crear fulfillment agrupando todos los open fulfillment_orders
+        // Paso 3: crear fulfillment
+        const body = {
+          fulfillment: {
+            notify_customer: false,
+            line_items_by_fulfillment_order: openOrders.map(fo => ({
+              fulfillment_order_id: fo.id
+            }))
+          }
+        };
+
+        if (locationId) {
+          body.fulfillment.location_id = locationId;
+        }
+
         const fulfillRes = await fetch(
           `https://${SHOP}/admin/api/2024-01/fulfillments.json`,
           {
@@ -48,21 +69,14 @@ export default async function handler(req, res) {
               'X-Shopify-Access-Token': TOKEN,
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-              fulfillment: {
-                notify_customer: false,
-                line_items_by_fulfillment_order: openOrders.map(fo => ({
-                  fulfillment_order_id: fo.id
-                }))
-              }
-            }),
+            body: JSON.stringify(body),
           }
         );
 
         const fulfillData = await fulfillRes.json();
 
         if (!fulfillRes.ok) {
-          return res.status(fulfillRes.status).json({ error: fulfillData });
+          return res.status(fulfillRes.status).json({ error: JSON.stringify(fulfillData) });
         }
       }
 
