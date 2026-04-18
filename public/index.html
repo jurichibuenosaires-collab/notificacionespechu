@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Cocina · PechuFree</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #242424;
+    --border: #2e2e2e;
+    --green: #22c55e;
+    --green-dim: #166534;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --text: #f5f5f5;
+    --muted: #737373;
+    --card-new: #1a2e1a;
+    --card-border-new: #22c55e40;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: var(--text);
+  }
+
+  .logo span {
+    color: var(--green);
+  }
+
+  .badge-count {
+    background: var(--green);
+    color: #000;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 20px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .badge-count.empty {
+    background: var(--surface2);
+    color: var(--muted);
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 0 2px var(--green-dim);
+    animation: pulse 2s infinite;
+  }
+
+  .status-dot.offline {
+    background: var(--red);
+    box-shadow: 0 0 0 2px #7f1d1d;
+    animation: none;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .refresh-info {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+  }
+
+  main {
+    padding: 16px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .empty-state.visible { display: flex; }
+
+  .empty-icon {
+    font-size: 48px;
+    margin-bottom: 8px;
+  }
+
+  .empty-title {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .empty-sub {
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  .orders-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+  }
+
+  .order-card {
+    background: var(--card-new);
+    border: 1px solid var(--card-border-new);
+    border-radius: 14px;
+    overflow: hidden;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .order-card.completing {
+    opacity: 0.5;
+    pointer-events: none;
+    transform: scale(0.97);
+    transition: all 0.2s;
+  }
+
+  .card-header {
+    padding: 14px 16px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid #ffffff08;
+  }
+
+  .order-number {
+    font-family: 'DM Mono', monospace;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--green);
+    letter-spacing: -0.5px;
+  }
+
+  .order-time {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    margin-top: 2px;
+  }
+
+  .timer-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: var(--surface2);
+    color: var(--text);
+  }
+
+  .timer-badge.urgent {
+    background: #7c2d12;
+    color: #fed7aa;
+  }
+
+  .customer-name {
+    padding: 10px 16px 0;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .customer-name strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .items-list {
+    padding: 10px 16px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .item-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .item-qty {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--amber);
+    min-width: 20px;
+  }
+
+  .item-name {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .item-note {
+    font-size: 12px;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  .order-note {
+    margin: 0 16px 10px;
+    background: #2a2000;
+    border: 1px solid #f59e0b30;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 12px;
+    color: #fcd34d;
+    display: flex;
+    gap: 6px;
+    align-items: flex-start;
+  }
+
+  .btn-ready {
+    display: block;
+    width: calc(100% - 32px);
+    margin: 0 16px 16px;
+    padding: 14px;
+    background: var(--green);
+    color: #000;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    letter-spacing: 0.2px;
+    transition: background 0.15s, transform 0.1s;
+  }
+
+  .btn-ready:active {
+    background: #16a34a;
+    transform: scale(0.98);
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: transform 0.3s ease;
+    z-index: 999;
+    white-space: nowrap;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { border-color: var(--green); color: var(--green); }
+  .toast.error { border-color: var(--red); color: var(--red); }
+
+  .error-banner {
+    background: #2d0f0f;
+    border: 1px solid #ef444430;
+    color: #fca5a5;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    display: none;
+  }
+
+  .error-banner.visible { display: block; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="logo">Pechu<span>Free</span> · Cocina</div>
+    <div class="badge-count empty" id="badge">0</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span class="refresh-info" id="last-update">--:--</span>
+    <div class="status-dot" id="status-dot"></div>
+  </div>
+</header>
+
+<main>
+  <div class="error-banner" id="error-banner"></div>
+
+  <div class="empty-state" id="empty-state">
+    <div class="empty-icon">✓</div>
+    <div class="empty-title">Sin pedidos pendientes</div>
+    <div class="empty-sub">Los pedidos nuevos aparecen acá automáticamente</div>
+  </div>
+
+  <div class="orders-grid" id="orders-grid"></div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const API_URL = '/api/orders';
+  let orders = {};
+  let timers = {};
+
+  function formatTime(dateStr) {
+    const d = new Date(dateStr);
+    return d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function getElapsed(dateStr) {
+    const mins = Math.floor((Date.now() - new Date(dateStr)) / 60000);
+    if (mins < 1) return 'ahora';
+    if (mins === 1) return '1 min';
+    return `${mins} min`;
+  }
+
+  function isUrgent(dateStr) {
+    return (Date.now() - new Date(dateStr)) > 15 * 60000;
+  }
+
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `toast show ${type}`;
+    setTimeout(() => t.className = 'toast', 2500);
+  }
+
+  function renderOrders() {
+    const grid = document.getElementById('orders-grid');
+    const empty = document.getElementById('empty-state');
+    const badge = document.getElementById('badge');
+    const list = Object.values(orders);
+
+    badge.textContent = list.length;
+    badge.className = list.length ? 'badge-count' : 'badge-count empty';
+
+    if (list.length === 0) {
+      grid.innerHTML = '';
+      empty.classList.add('visible');
+      return;
+    }
+
+    empty.classList.remove('visible');
+
+    list.forEach(order => {
+      let card = document.getElementById(`order-${order.id}`);
+      if (!card) {
+        card = document.createElement('div');
+        card.className = 'order-card';
+        card.id = `order-${order.id}`;
+        grid.prepend(card);
+      }
+
+      const urgent = isUrgent(order.created_at);
+      const note = order.note || '';
+
+      const items = order.line_items.map(i => `
+        <div class="item-row">
+          <span class="item-qty">${i.quantity}×</span>
+          <span class="item-name">${i.name}</span>
+        </div>
+        ${i.properties && i.properties.length ? i.properties.map(p =>
+          `<div class="item-row"><span class="item-qty"></span><span class="item-note">${p.name}: ${p.value}</span></div>`
+        ).join('') : ''}
+      `).join('');
+
+      const customer = order.shipping_address
+        ? order.shipping_address.first_name
+        : (order.email ? order.email.split('@')[0] : 'Cliente');
+
+      card.innerHTML = `
+        <div class="card-header">
+          <div>
+            <div class="order-number">#${order.order_number}</div>
+            <div class="order-time">${formatTime(order.created_at)}</div>
+          </div>
+          <div class="timer-badge ${urgent ? 'urgent' : ''}" data-time="${order.created_at}">
+            ${getElapsed(order.created_at)}
+          </div>
+        </div>
+        <div class="customer-name"><strong>${customer}</strong></div>
+        <div class="items-list">${items}</div>
+        ${note ? `<div class="order-note">⚠ ${note}</div>` : ''}
+        <button class="btn-ready" onclick="markReady(${order.id}, this)">✓ Listo para entregar</button>
+      `;
+    });
+
+    // Remover cards de pedidos que ya no están
+    grid.querySelectorAll('.order-card').forEach(card => {
+      const id = card.id.replace('order-', '');
+      if (!orders[id]) card.remove();
+    });
+  }
+
+  function updateTimers() {
+    document.querySelectorAll('.timer-badge').forEach(el => {
+      const t = el.dataset.time;
+      if (!t) return;
+      el.textContent = getElapsed(t);
+      el.className = `timer-badge ${isUrgent(t) ? 'urgent' : ''}`;
+    });
+  }
+
+  async function markReady(orderId, btn) {
+    const card = document.getElementById(`order-${orderId}`);
+    if (card) card.classList.add('completing');
+
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId, action: 'fulfill' })
+      });
+
+      if (res.ok) {
+        delete orders[orderId];
+        renderOrders();
+        showToast('Pedido marcado como listo', 'success');
+      } else {
+        throw new Error('Error al actualizar');
+      }
+    } catch (e) {
+      if (card) card.classList.remove('completing');
+      showToast('Error al marcar el pedido', 'error');
+    }
+  }
+
+  async function fetchOrders() {
+    const dot = document.getElementById('status-dot');
+    const errBanner = document.getElementById('error-banner');
+
+    try {
+      const res = await fetch(API_URL);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+
+      dot.className = 'status-dot';
+      errBanner.classList.remove('visible');
+
+      orders = {};
+      (data.orders || []).forEach(o => { orders[o.id] = o; });
+      renderOrders();
+
+      const now = new Date();
+      document.getElementById('last-update').textContent =
+        now.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+    } catch (e) {
+      dot.className = 'status-dot offline';
+      errBanner.textContent = `Sin conexión con Shopify. Reintentando... (${e.message})`;
+      errBanner.classList.add('visible');
+    }
+  }
+
+  // Iniciar
+  fetchOrders();
+  setInterval(fetchOrders, 15000); // refresca cada 15 seg
+  setInterval(updateTimers, 30000); // actualiza timers
+</script>
+</body>
+</html>
