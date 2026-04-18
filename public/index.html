@@ -4,501 +4,509 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Cocina · PechuFree</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 
-  :root {
-    --bg: #0f0f0f;
-    --surface: #1a1a1a;
-    --surface2: #242424;
-    --border: #2e2e2e;
-    --green: #22c55e;
-    --green-dim: #166534;
-    --amber: #f59e0b;
-    --red: #ef4444;
-    --text: #f5f5f5;
-    --muted: #737373;
-    --card-new: #1a2e1a;
-    --card-border-new: #22c55e40;
+  :root{
+    --bg:#0a0a0a;
+    --surface:#141414;
+    --surface2:#1e1e1e;
+    --border:#2a2a2a;
+    --accent:#E8FF47;
+    --accent-dim:#3a3f00;
+    --red:#ff4d4d;
+    --text:#f0f0f0;
+    --muted:#555;
+    --muted2:#777;
   }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Figtree',sans-serif;
+    min-height:100vh;
+    overflow-x:hidden;
   }
 
-  header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 0 20px;
-    height: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
+  header{
+    background:var(--surface);
+    border-bottom:1px solid var(--border);
+    padding:0 24px;
+    height:60px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    position:sticky;
+    top:0;
+    z-index:100;
   }
 
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  .logo{
+    font-family:'Syne',sans-serif;
+    font-size:17px;
+    font-weight:800;
+    letter-spacing:-0.5px;
+    color:var(--text);
+    text-transform:uppercase;
   }
 
-  .logo {
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: -0.3px;
-    color: var(--text);
+  .logo em{color:var(--accent);font-style:normal}
+
+  .header-right{display:flex;align-items:center;gap:16px}
+
+  .badge{
+    background:var(--accent);
+    color:#000;
+    font-family:'DM Mono',monospace;
+    font-size:12px;
+    font-weight:500;
+    padding:3px 10px;
+    border-radius:20px;
+    min-width:28px;
+    text-align:center;
   }
 
-  .logo span {
-    color: var(--green);
+  .badge.zero{background:var(--surface2);color:var(--muted2)}
+
+  .dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--accent);
+    animation:blink 2.5s ease-in-out infinite;
+  }
+  .dot.off{background:var(--red);animation:none}
+
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+  .clock{
+    font-family:'DM Mono',monospace;
+    font-size:11px;
+    color:var(--muted2);
   }
 
-  .badge-count {
-    background: var(--green);
-    color: #000;
-    font-size: 11px;
-    font-weight: 700;
-    padding: 2px 7px;
-    border-radius: 20px;
-    font-family: 'DM Mono', monospace;
+  main{padding:20px;max-width:1100px;margin:0 auto}
+
+  .empty{
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:100px 20px;
+    gap:10px;
+    text-align:center;
+  }
+  .empty.on{display:flex}
+
+  .empty-check{
+    width:64px;height:64px;border-radius:50%;
+    border:2px solid var(--border);
+    display:flex;align-items:center;justify-content:center;
+    margin-bottom:8px;
   }
 
-  .badge-count.empty {
-    background: var(--surface2);
-    color: var(--muted);
+  .empty-check svg{width:28px;height:28px;stroke:var(--muted);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+
+  .empty h2{font-size:17px;font-weight:600;color:var(--muted2)}
+  .empty p{font-size:13px;color:var(--muted)}
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+    gap:14px;
   }
 
-  .status-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--green);
-    box-shadow: 0 0 0 2px var(--green-dim);
-    animation: pulse 2s infinite;
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:16px;
+    overflow:hidden;
+    animation:pop .25s cubic-bezier(.34,1.56,.64,1);
+    transition:opacity .2s,transform .2s;
   }
 
-  .status-dot.offline {
-    background: var(--red);
-    box-shadow: 0 0 0 2px #7f1d1d;
-    animation: none;
+  .card.new-flash{
+    border-color:var(--accent);
+    box-shadow:0 0 0 1px var(--accent);
+    animation:pop .25s cubic-bezier(.34,1.56,.64,1), flash 1s ease forwards;
   }
 
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
+  @keyframes flash{
+    0%{box-shadow:0 0 0 1px var(--accent),0 0 20px #e8ff4740}
+    100%{box-shadow:none;border-color:var(--border)}
   }
 
-  .refresh-info {
-    font-size: 11px;
-    color: var(--muted);
-    font-family: 'DM Mono', monospace;
+  @keyframes pop{
+    from{opacity:0;transform:scale(.95) translateY(8px)}
+    to{opacity:1;transform:scale(1) translateY(0)}
   }
 
-  main {
-    padding: 16px;
-    max-width: 900px;
-    margin: 0 auto;
+  .card.done{opacity:.4;transform:scale(.97);pointer-events:none}
+
+  .card-top{
+    padding:16px 18px 12px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    border-bottom:1px solid var(--border);
   }
 
-  .empty-state {
-    text-align: center;
-    padding: 80px 20px;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
+  .order-num{
+    font-family:'Syne',sans-serif;
+    font-size:22px;
+    font-weight:800;
+    color:var(--accent);
+    letter-spacing:-1px;
+    line-height:1;
   }
 
-  .empty-state.visible { display: flex; }
-
-  .empty-icon {
-    font-size: 48px;
-    margin-bottom: 8px;
+  .order-time{
+    font-family:'DM Mono',monospace;
+    font-size:11px;
+    color:var(--muted2);
+    margin-top:4px;
   }
 
-  .empty-title {
-    font-size: 18px;
-    font-weight: 500;
-    color: var(--text);
+  .timer{
+    font-family:'DM Mono',monospace;
+    font-size:12px;
+    padding:5px 9px;
+    border-radius:8px;
+    background:var(--surface2);
+    color:var(--muted2);
+    border:1px solid var(--border);
+    transition:all .3s;
   }
 
-  .empty-sub {
-    font-size: 14px;
-    color: var(--muted);
+  .timer.hot{
+    background:#2a0a00;
+    color:#ff8c5a;
+    border-color:#ff4d0030;
   }
 
-  .orders-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 12px;
+  .card-customer{
+    padding:12px 18px 0;
+    font-size:13px;
+    color:var(--muted2);
+    font-weight:400;
   }
 
-  .order-card {
-    background: var(--card-new);
-    border: 1px solid var(--card-border-new);
-    border-radius: 14px;
-    overflow: hidden;
-    animation: slideIn 0.3s ease;
+  .card-customer strong{color:var(--text);font-weight:600}
+
+  .items{
+    padding:10px 18px 14px;
+    display:flex;
+    flex-direction:column;
+    gap:7px;
   }
 
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
+  .item{
+    display:flex;
+    gap:10px;
+    align-items:baseline;
   }
 
-  .order-card.completing {
-    opacity: 0.5;
-    pointer-events: none;
-    transform: scale(0.97);
-    transition: all 0.2s;
+  .qty{
+    font-family:'DM Mono',monospace;
+    font-size:13px;
+    color:var(--accent);
+    font-weight:500;
+    min-width:22px;
+    flex-shrink:0;
   }
 
-  .card-header {
-    padding: 14px 16px 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    border-bottom: 1px solid #ffffff08;
+  .iname{
+    font-size:14px;
+    font-weight:500;
+    color:var(--text);
+    line-height:1.35;
   }
 
-  .order-number {
-    font-family: 'DM Mono', monospace;
-    font-size: 18px;
-    font-weight: 500;
-    color: var(--green);
-    letter-spacing: -0.5px;
+  .iprop{
+    font-size:12px;
+    color:var(--muted2);
+    font-style:italic;
+    padding-left:32px;
   }
 
-  .order-time {
-    font-size: 11px;
-    color: var(--muted);
-    font-family: 'DM Mono', monospace;
-    margin-top: 2px;
+  .note-box{
+    margin:0 18px 12px;
+    background:#1e1800;
+    border:1px solid #f59e0b25;
+    border-radius:8px;
+    padding:8px 12px;
+    font-size:12px;
+    color:#fbbf24;
+    display:flex;
+    gap:8px;
   }
 
-  .timer-badge {
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    font-weight: 500;
-    padding: 4px 8px;
-    border-radius: 6px;
-    background: var(--surface2);
-    color: var(--text);
+  .divider{height:1px;background:var(--border);margin:0 18px}
+
+  .btn-listo{
+    display:block;
+    width:calc(100% - 36px);
+    margin:14px 18px 16px;
+    padding:15px;
+    background:var(--accent);
+    color:#000;
+    font-family:'Figtree',sans-serif;
+    font-size:15px;
+    font-weight:700;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    letter-spacing:.3px;
+    transition:opacity .15s,transform .1s;
   }
 
-  .timer-badge.urgent {
-    background: #7c2d12;
-    color: #fed7aa;
+  .btn-listo:active{opacity:.85;transform:scale(.98)}
+
+  .error-bar{
+    background:#1a0606;
+    border:1px solid #ff4d4d25;
+    color:#ff8080;
+    padding:10px 16px;
+    border-radius:10px;
+    font-size:13px;
+    margin-bottom:16px;
+    display:none;
   }
+  .error-bar.on{display:block}
 
-  .customer-name {
-    padding: 10px 16px 0;
-    font-size: 13px;
-    color: var(--muted);
+  .toast{
+    position:fixed;
+    bottom:28px;
+    left:50%;
+    transform:translateX(-50%) translateY(70px);
+    background:var(--surface);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:11px 20px;
+    border-radius:10px;
+    font-size:14px;
+    font-weight:500;
+    transition:transform .3s ease;
+    z-index:999;
+    white-space:nowrap;
   }
-
-  .customer-name strong {
-    color: var(--text);
-    font-weight: 500;
-  }
-
-  .items-list {
-    padding: 10px 16px 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .item-row {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-  }
-
-  .item-qty {
-    font-family: 'DM Mono', monospace;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--amber);
-    min-width: 20px;
-  }
-
-  .item-name {
-    font-size: 14px;
-    color: var(--text);
-    line-height: 1.3;
-  }
-
-  .item-note {
-    font-size: 12px;
-    color: var(--muted);
-    font-style: italic;
-  }
-
-  .order-note {
-    margin: 0 16px 10px;
-    background: #2a2000;
-    border: 1px solid #f59e0b30;
-    border-radius: 8px;
-    padding: 8px 10px;
-    font-size: 12px;
-    color: #fcd34d;
-    display: flex;
-    gap: 6px;
-    align-items: flex-start;
-  }
-
-  .btn-ready {
-    display: block;
-    width: calc(100% - 32px);
-    margin: 0 16px 16px;
-    padding: 14px;
-    background: var(--green);
-    color: #000;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    font-weight: 700;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    letter-spacing: 0.2px;
-    transition: background 0.15s, transform 0.1s;
-  }
-
-  .btn-ready:active {
-    background: #16a34a;
-    transform: scale(0.98);
-  }
-
-  .toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 12px 20px;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 500;
-    transition: transform 0.3s ease;
-    z-index: 999;
-    white-space: nowrap;
-  }
-
-  .toast.show { transform: translateX(-50%) translateY(0); }
-  .toast.success { border-color: var(--green); color: var(--green); }
-  .toast.error { border-color: var(--red); color: var(--red); }
-
-  .error-banner {
-    background: #2d0f0f;
-    border: 1px solid #ef444430;
-    color: #fca5a5;
-    padding: 12px 16px;
-    border-radius: 10px;
-    font-size: 13px;
-    margin-bottom: 16px;
-    display: none;
-  }
-
-  .error-banner.visible { display: block; }
+  .toast.show{transform:translateX(-50%) translateY(0)}
+  .toast.ok{border-color:var(--accent);color:var(--accent)}
+  .toast.err{border-color:var(--red);color:var(--red)}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="header-left">
-    <div class="logo">Pechu<span>Free</span> · Cocina</div>
-    <div class="badge-count empty" id="badge">0</div>
-  </div>
-  <div style="display:flex;align-items:center;gap:10px">
-    <span class="refresh-info" id="last-update">--:--</span>
-    <div class="status-dot" id="status-dot"></div>
+  <div class="logo">Pechu<em>Free</em> · Cocina</div>
+  <div class="header-right">
+    <span class="clock" id="clock">--:--:--</span>
+    <div class="badge zero" id="badge">0</div>
+    <div class="dot" id="dot"></div>
   </div>
 </header>
 
 <main>
-  <div class="error-banner" id="error-banner"></div>
+  <div class="error-bar" id="err"></div>
 
-  <div class="empty-state" id="empty-state">
-    <div class="empty-icon">✓</div>
-    <div class="empty-title">Sin pedidos pendientes</div>
-    <div class="empty-sub">Los pedidos nuevos aparecen acá automáticamente</div>
+  <div class="empty" id="empty">
+    <div class="empty-check">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h2>Sin pedidos pendientes</h2>
+    <p>Los pedidos nuevos aparecen acá automáticamente</p>
   </div>
 
-  <div class="orders-grid" id="orders-grid"></div>
+  <div class="grid" id="grid"></div>
 </main>
 
 <div class="toast" id="toast"></div>
 
 <script>
-  const API_URL = '/api/orders';
-  let orders = {};
-  let timers = {};
+const API = '/api/orders';
+let known = {};
+let audioCtx = null;
+let firstLoad = true;
 
-  function formatTime(dateStr) {
-    const d = new Date(dateStr);
-    return d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playBell() {
+  try {
+    const ctx = getAudioCtx();
+    const t = ctx.currentTime;
+    // Campana: tono principal + armónicos
+    [[880,0,0.4],[1760,0,0.2],[2640,0.05,0.1]].forEach(([freq, delay, gain]) => {
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.connect(g); g.connect(ctx.destination);
+      osc.frequency.value = freq;
+      osc.type = 'sine';
+      g.gain.setValueAtTime(gain, t + delay);
+      g.gain.exponentialRampToValueAtTime(0.001, t + delay + 1.8);
+      osc.start(t + delay);
+      osc.stop(t + delay + 1.8);
+    });
+  } catch(e) {}
+}
+
+function fmt(d) {
+  return new Date(d).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+}
+
+function elapsed(d) {
+  const m = Math.floor((Date.now() - new Date(d)) / 60000);
+  return m < 1 ? 'ahora' : m === 1 ? '1 min' : `${m} min`;
+}
+
+function isHot(d) {
+  return (Date.now() - new Date(d)) > 15 * 60000;
+}
+
+function toast(msg, type='') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast show ${type}`;
+  setTimeout(() => el.className = 'toast', 2800);
+}
+
+function renderAll() {
+  const grid = document.getElementById('grid');
+  const empty = document.getElementById('empty');
+  const badge = document.getElementById('badge');
+  const list = Object.values(known).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+
+  badge.textContent = list.length;
+  badge.className = list.length ? 'badge' : 'badge zero';
+
+  if (!list.length) {
+    grid.innerHTML = '';
+    empty.classList.add('on');
+    return;
   }
+  empty.classList.remove('on');
 
-  function getElapsed(dateStr) {
-    const mins = Math.floor((Date.now() - new Date(dateStr)) / 60000);
-    if (mins < 1) return 'ahora';
-    if (mins === 1) return '1 min';
-    return `${mins} min`;
-  }
+  // Remover cards viejas
+  grid.querySelectorAll('.card').forEach(c => {
+    if (!known[c.dataset.id]) c.remove();
+  });
 
-  function isUrgent(dateStr) {
-    return (Date.now() - new Date(dateStr)) > 15 * 60000;
-  }
+  list.forEach(o => {
+    let card = document.getElementById(`o-${o.id}`);
+    const isNew = !card;
 
-  function showToast(msg, type = '') {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className = `toast show ${type}`;
-    setTimeout(() => t.className = 'toast', 2500);
-  }
-
-  function renderOrders() {
-    const grid = document.getElementById('orders-grid');
-    const empty = document.getElementById('empty-state');
-    const badge = document.getElementById('badge');
-    const list = Object.values(orders);
-
-    badge.textContent = list.length;
-    badge.className = list.length ? 'badge-count' : 'badge-count empty';
-
-    if (list.length === 0) {
-      grid.innerHTML = '';
-      empty.classList.add('visible');
-      return;
+    if (!card) {
+      card = document.createElement('div');
+      card.className = 'card' + (isNew && !firstLoad ? ' new-flash' : '');
+      card.id = `o-${o.id}`;
+      card.dataset.id = o.id;
+      grid.prepend(card);
     }
 
-    empty.classList.remove('visible');
+    const hot = isHot(o.created_at);
+    const note = o.note || '';
+    const customer = o.billing_address?.first_name || o.shipping_address?.first_name || o.email?.split('@')[0] || 'Cliente';
 
-    list.forEach(order => {
-      let card = document.getElementById(`order-${order.id}`);
-      if (!card) {
-        card = document.createElement('div');
-        card.className = 'order-card';
-        card.id = `order-${order.id}`;
-        grid.prepend(card);
-      }
+    const items = o.line_items.map(i => {
+      const props = (i.properties||[]).filter(p => p.value).map(p =>
+        `<div class="iprop">${p.name}: ${p.value}</div>`
+      ).join('');
+      return `<div class="item"><span class="qty">${i.quantity}×</span><span class="iname">${i.name}</span></div>${props}`;
+    }).join('');
 
-      const urgent = isUrgent(order.created_at);
-      const note = order.note || '';
-
-      const items = order.line_items.map(i => `
-        <div class="item-row">
-          <span class="item-qty">${i.quantity}×</span>
-          <span class="item-name">${i.name}</span>
+    card.innerHTML = `
+      <div class="card-top">
+        <div>
+          <div class="order-num">#${o.order_number}</div>
+          <div class="order-time">${fmt(o.created_at)}</div>
         </div>
-        ${i.properties && i.properties.length ? i.properties.map(p =>
-          `<div class="item-row"><span class="item-qty"></span><span class="item-note">${p.name}: ${p.value}</span></div>`
-        ).join('') : ''}
-      `).join('');
+        <div class="timer ${hot?'hot':''}" data-t="${o.created_at}">${elapsed(o.created_at)}</div>
+      </div>
+      <div class="card-customer"><strong>${customer}</strong></div>
+      <div class="items">${items}</div>
+      ${note ? `<div class="note-box">⚠ ${note}</div>` : ''}
+      <div class="divider"></div>
+      <button class="btn-listo" onclick="markDone(${o.id})">✓ &nbsp;Listo para entregar</button>
+    `;
+  });
+}
 
-      const customer = order.shipping_address
-        ? order.shipping_address.first_name
-        : (order.email ? order.email.split('@')[0] : 'Cliente');
+function tickTimers() {
+  document.querySelectorAll('.timer').forEach(el => {
+    const t = el.dataset.t;
+    if (!t) return;
+    el.textContent = elapsed(t);
+    el.className = `timer ${isHot(t)?'hot':''}`;
+  });
+}
 
-      card.innerHTML = `
-        <div class="card-header">
-          <div>
-            <div class="order-number">#${order.order_number}</div>
-            <div class="order-time">${formatTime(order.created_at)}</div>
-          </div>
-          <div class="timer-badge ${urgent ? 'urgent' : ''}" data-time="${order.created_at}">
-            ${getElapsed(order.created_at)}
-          </div>
-        </div>
-        <div class="customer-name"><strong>${customer}</strong></div>
-        <div class="items-list">${items}</div>
-        ${note ? `<div class="order-note">⚠ ${note}</div>` : ''}
-        <button class="btn-ready" onclick="markReady(${order.id}, this)">✓ Listo para entregar</button>
-      `;
+async function markDone(id) {
+  const card = document.getElementById(`o-${id}`);
+  if (card) card.classList.add('done');
+  try {
+    const r = await fetch(API, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({orderId: id, action:'fulfill'})
+    });
+    if (r.ok) {
+      delete known[id];
+      renderAll();
+      toast('Pedido entregado ✓', 'ok');
+    } else throw new Error();
+  } catch {
+    if (card) card.classList.remove('done');
+    toast('Error al marcar el pedido', 'err');
+  }
+}
+
+async function fetchOrders() {
+  const dot = document.getElementById('dot');
+  const err = document.getElementById('err');
+  try {
+    const r = await fetch(API);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const data = await r.json();
+
+    dot.className = 'dot';
+    err.classList.remove('on');
+
+    const incoming = {};
+    (data.orders || []).forEach(o => { incoming[o.id] = o; });
+
+    // Detectar pedidos nuevos para sonar campana
+    let hasNew = false;
+    Object.keys(incoming).forEach(id => {
+      if (!known[id]) hasNew = true;
     });
 
-    // Remover cards de pedidos que ya no están
-    grid.querySelectorAll('.order-card').forEach(card => {
-      const id = card.id.replace('order-', '');
-      if (!orders[id]) card.remove();
-    });
+    if (hasNew && !firstLoad) playBell();
+
+    known = incoming;
+    renderAll();
+    firstLoad = false;
+
+  } catch(e) {
+    dot.className = 'dot off';
+    err.textContent = `Sin conexión. Reintentando... (${e.message})`;
+    err.classList.add('on');
   }
+}
 
-  function updateTimers() {
-    document.querySelectorAll('.timer-badge').forEach(el => {
-      const t = el.dataset.time;
-      if (!t) return;
-      el.textContent = getElapsed(t);
-      el.className = `timer-badge ${isUrgent(t) ? 'urgent' : ''}`;
-    });
-  }
+// Reloj en vivo
+setInterval(() => {
+  document.getElementById('clock').textContent =
+    new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}, 1000);
 
-  async function markReady(orderId, btn) {
-    const card = document.getElementById(`order-${orderId}`);
-    if (card) card.classList.add('completing');
+// Desbloquear AudioContext al primer toque (requerido por browsers)
+document.addEventListener('touchstart', () => { try { getAudioCtx(); } catch(e){} }, {once:true});
+document.addEventListener('click', () => { try { getAudioCtx(); } catch(e){} }, {once:true});
 
-    try {
-      const res = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId, action: 'fulfill' })
-      });
-
-      if (res.ok) {
-        delete orders[orderId];
-        renderOrders();
-        showToast('Pedido marcado como listo', 'success');
-      } else {
-        throw new Error('Error al actualizar');
-      }
-    } catch (e) {
-      if (card) card.classList.remove('completing');
-      showToast('Error al marcar el pedido', 'error');
-    }
-  }
-
-  async function fetchOrders() {
-    const dot = document.getElementById('status-dot');
-    const errBanner = document.getElementById('error-banner');
-
-    try {
-      const res = await fetch(API_URL);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-
-      dot.className = 'status-dot';
-      errBanner.classList.remove('visible');
-
-      orders = {};
-      (data.orders || []).forEach(o => { orders[o.id] = o; });
-      renderOrders();
-
-      const now = new Date();
-      document.getElementById('last-update').textContent =
-        now.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-    } catch (e) {
-      dot.className = 'status-dot offline';
-      errBanner.textContent = `Sin conexión con Shopify. Reintentando... (${e.message})`;
-      errBanner.classList.add('visible');
-    }
-  }
-
-  // Iniciar
-  fetchOrders();
-  setInterval(fetchOrders, 15000); // refresca cada 15 seg
-  setInterval(updateTimers, 30000); // actualiza timers
+fetchOrders();
+setInterval(fetchOrders, 15000);
+setInterval(tickTimers, 30000);
 </script>
 </body>
 </html>
