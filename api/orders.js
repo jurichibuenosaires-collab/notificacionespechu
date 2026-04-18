@@ -14,38 +14,55 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Token no configurado' });
   }
 
-  // Marcar pedido como completado
+  // POST - marcar pedido como entregado
   if (req.method === 'POST') {
     const { orderId, action } = req.body;
     if (!orderId) return res.status(400).json({ error: 'orderId requerido' });
 
     try {
       if (action === 'fulfill') {
-        // Obtener fulfillment orders
+        // Paso 1: obtener fulfillment_orders del pedido
         const foRes = await fetch(
           `https://${SHOP}/admin/api/2024-01/orders/${orderId}/fulfillment_orders.json`,
           { headers: { 'X-Shopify-Access-Token': TOKEN } }
         );
-        const foData = await foRes.json();
-        const fulfillmentOrders = foData.fulfillment_orders || [];
 
-        for (const fo of fulfillmentOrders) {
-          if (fo.status === 'open') {
-            await fetch(`https://${SHOP}/admin/api/2024-01/fulfillments.json`, {
-              method: 'POST',
-              headers: {
-                'X-Shopify-Access-Token': TOKEN,
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                fulfillment: {
-                  line_items_by_fulfillment_order: [
-                    { fulfillment_order_id: fo.id }
-                  ]
-                }
-              }),
-            });
+        if (!foRes.ok) {
+          const txt = await foRes.text();
+          return res.status(foRes.status).json({ error: txt });
+        }
+
+        const foData = await foRes.json();
+        const openOrders = (foData.fulfillment_orders || []).filter(fo => fo.status === 'open');
+
+        if (openOrders.length === 0) {
+          return res.status(200).json({ ok: true, msg: 'No hay fulfillment orders abiertas' });
+        }
+
+        // Paso 2: crear fulfillment agrupando todos los open fulfillment_orders
+        const fulfillRes = await fetch(
+          `https://${SHOP}/admin/api/2024-01/fulfillments.json`,
+          {
+            method: 'POST',
+            headers: {
+              'X-Shopify-Access-Token': TOKEN,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              fulfillment: {
+                notify_customer: false,
+                line_items_by_fulfillment_order: openOrders.map(fo => ({
+                  fulfillment_order_id: fo.id
+                }))
+              }
+            }),
           }
+        );
+
+        const fulfillData = await fulfillRes.json();
+
+        if (!fulfillRes.ok) {
+          return res.status(fulfillRes.status).json({ error: fulfillData });
         }
       }
 
@@ -55,10 +72,10 @@ export default async function handler(req, res) {
     }
   }
 
-  // GET - traer pedidos pendientes
+  // GET - traer solo pedidos pendientes de entrega
   try {
     const response = await fetch(
-      `https://${SHOP}/admin/api/2024-01/orders.json?status=open&fulfillment_status=unfulfilled&financial_status=any&limit=50`,
+      `https://${SHOP}/admin/api/2024-01/orders.json?status=open&fulfillment_status=unfulfilled&limit=50`,
       { headers: { 'X-Shopify-Access-Token': TOKEN } }
     );
 
