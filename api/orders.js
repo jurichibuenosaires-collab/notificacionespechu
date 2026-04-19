@@ -18,10 +18,7 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     const { orderId, action } = req.body;
     if (!orderId) return res.status(400).json({ error: 'orderId requerido' });
-
-    if (action !== 'fulfill') {
-      return res.status(200).json({ ok: true });
-    }
+    if (action !== 'fulfill') return res.status(200).json({ ok: true });
 
     try {
       // 1. Obtener los fulfillment_orders de la orden
@@ -39,11 +36,12 @@ export default async function handler(req, res) {
       const openFOs = (foData.fulfillment_orders || []).filter(fo => fo.status === 'open');
 
       if (openFOs.length === 0) {
-        // Ya estaba fulfillado o no hay nada pendiente
-        return res.status(200).json({ ok: true, message: 'No hay items pendientes de fulfillment' });
+        return res.status(200).json({ ok: true, message: 'No hay items pendientes' });
       }
 
-      // 2. Crear el fulfillment con la API nueva (sin location_id — ya está en el FO)
+      // 2. Crear el fulfillment con la estructura correcta para API 2024-01:
+      //    Cada fulfillment_order DEBE incluir fulfillment_order_line_items
+      //    con el id y quantity de cada line item del FO.
       const fulfillRes = await fetch(
         `https://${SHOP}/admin/api/2024-01/fulfillments.json`,
         {
@@ -54,10 +52,13 @@ export default async function handler(req, res) {
           },
           body: JSON.stringify({
             fulfillment: {
-              message: 'Listo para entregar',
               notify_customer: false,
               line_items_by_fulfillment_order: openFOs.map(fo => ({
-                fulfillment_order_id: fo.id
+                fulfillment_order_id: fo.id,
+                fulfillment_order_line_items: (fo.line_items || []).map(li => ({
+                  id: li.id,
+                  quantity: li.remaining_quantity
+                }))
               }))
             }
           })
@@ -68,17 +69,10 @@ export default async function handler(req, res) {
         return res.status(200).json({ ok: true });
       }
 
-      const fulfillError = await fulfillRes.json().catch(() => ({}));
-
-      // Si el error es de permisos (403) o el endpoint no acepta este formato (422),
-      // intentar con el metodo legacy
-      if (fulfillRes.status === 403 || fulfillRes.status === 422) {
-        return await legacyFulfill(SHOP, TOKEN, orderId, res);
-      }
-
+      const errorBody = await fulfillRes.json().catch(() => ({}));
       return res.status(fulfillRes.status).json({
-        error: `Error al completar el pedido (${fulfillRes.status})`,
-        details: fulfillError
+        error: `Shopify error ${fulfillRes.status}`,
+        details: errorBody
       });
 
     } catch (err) {
@@ -100,75 +94,6 @@ export default async function handler(req, res) {
 
     const data = await response.json();
     return res.status(200).json(data);
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
-}
-
-async function legacyFulfill(SHOP, TOKEN, orderId, res) {
-  try {
-    // Obtener la primera ubicacion activa
-    const locRes = await fetch(
-      `https://${SHOP}/admin/api/2024-01/locations.json`,
-      { headers: { 'X-Shopify-Access-Token': TOKEN } }
-    );
-
-    if (!locRes.ok) {
-      const txt = await locRes.text();
-      return res.status(locRes.status).json({ error: `Error obteniendo ubicaciones: ${txt}` });
-    }
-
-    const locData = await locRes.json();
-    const location = (locData.locations || []).find(l => l.active);
-
-    if (!location) {
-      return res.status(500).json({ error: 'No se encontro ninguna ubicacion activa' });
-    }
-
-    // Obtener la orden para los line items
-    const orderRes = await fetch(
-      `https://${SHOP}/admin/api/2024-01/orders/${orderId}.json`,
-      { headers: { 'X-Shopify-Access-Token': TOKEN } }
-    );
-
-    if (!orderRes.ok) {
-      const txt = await orderRes.text();
-      return res.status(orderRes.status).json({ error: `Error obteniendo orden: ${txt}` });
-    }
-
-    const orderData = await orderRes.json();
-    const order = orderData.order;
-
-    if (!order) return res.status(404).json({ error: 'Orden no encontrada' });
-
-    const lineItems = (order.line_items || [])
-      .map(li => ({ id: li.id, quantity: li.fulfillable_quantity || li.quantity }))
-      .filter(li => li.quantity > 0);
-
-    const fulfillRes = await fetch(
-      `https://${SHOP}/admin/api/2024-01/orders/${orderId}/fulfillments.json`,
-      {
-        method: 'POST',
-        headers: { 'X-Shopify-Access-Token': TOKEN, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fulfillment: {
-            location_id: location.id,
-            notify_customer: false,
-            line_items: lineItems
-          }
-        })
-      }
-    );
-
-    if (!fulfillRes.ok) {
-      const errorBody = await fulfillRes.json().catch(() => ({}));
-      return res.status(fulfillRes.status).json({
-        error: `Error al completar el pedido (${fulfillRes.status})`,
-        details: errorBody
-      });
-    }
-
-    return res.status(200).json({ ok: true });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
