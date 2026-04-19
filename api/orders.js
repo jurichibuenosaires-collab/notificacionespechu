@@ -54,10 +54,14 @@ export default async function handler(req, res) {
           body: JSON.stringify({
             fulfillment: {
               notify_customer: false,
-              // Omitir fulfillment_order_line_items hace que Shopify
-              // fulfille automáticamente todos los items pendientes del FO
               line_items_by_fulfillment_order: openFOs.map(fo => ({
-                fulfillment_order_id: fo.id
+                fulfillment_order_id: fo.id,
+                fulfillment_order_line_items: (fo.line_items || [])
+                  .filter(li => li.fulfillable_quantity > 0)
+                  .map(li => ({
+                    id: li.id,
+                    quantity: li.fulfillable_quantity
+                  }))
               }))
             }
           })
@@ -87,16 +91,6 @@ export default async function handler(req, res) {
     } catch (err) {
       return res.status(500).json({ error: err.message });
     }
-  }
-
-  // GET debug: ver estructura de fulfillment_orders de una orden
-  if (req.method === 'GET' && req.query.debug_fo) {
-    const foRes = await fetch(
-      `https://${SHOP}/admin/api/2024-01/orders/${req.query.debug_fo}/fulfillment_orders.json`,
-      { headers: { 'X-Shopify-Access-Token': TOKEN } }
-    );
-    const foData = await foRes.json();
-    return res.status(200).json(foData);
   }
 
   // GET: traer pedidos pendientes
