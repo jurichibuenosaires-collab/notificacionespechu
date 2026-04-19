@@ -33,15 +33,16 @@ export default async function handler(req, res) {
       }
 
       const foData = await foRes.json();
-      const openFOs = (foData.fulfillment_orders || []).filter(fo => fo.status === 'open');
+      // Incluir 'open' e 'in_progress' — ambos son estados fulfillables
+      const openFOs = (foData.fulfillment_orders || []).filter(
+        fo => fo.status === 'open' || fo.status === 'in_progress'
+      );
 
       if (openFOs.length === 0) {
         return res.status(200).json({ ok: true, message: 'No hay items pendientes' });
       }
 
-      // 2. Crear el fulfillment con la estructura correcta para API 2024-01:
-      //    Cada fulfillment_order DEBE incluir fulfillment_order_line_items
-      //    con el id y quantity de cada line item del FO.
+      // 2. Crear el fulfillment con la estructura correcta para API 2024-01
       const fulfillRes = await fetch(
         `https://${SHOP}/admin/api/2024-01/fulfillments.json`,
         {
@@ -53,31 +54,49 @@ export default async function handler(req, res) {
           body: JSON.stringify({
             fulfillment: {
               notify_customer: false,
+              // Omitir fulfillment_order_line_items hace que Shopify
+              // fulfille automáticamente todos los items pendientes del FO
               line_items_by_fulfillment_order: openFOs.map(fo => ({
-                fulfillment_order_id: fo.id,
-                fulfillment_order_line_items: (fo.line_items || []).map(li => ({
-                  id: li.id,
-                  quantity: li.remaining_quantity
-                }))
+                fulfillment_order_id: fo.id
               }))
             }
           })
         }
       );
 
+      const fulfillBody = await fulfillRes.json().catch(() => ({}));
+
       if (fulfillRes.ok) {
+        // Verificar que el fulfillment quedó en estado 'success'
+        const status = fulfillBody?.fulfillment?.status;
+        if (status && status !== 'success') {
+          return res.status(200).json({
+            ok: false,
+            error: `Fulfillment creado pero con estado: ${status}`,
+            details: fulfillBody
+          });
+        }
         return res.status(200).json({ ok: true });
       }
 
-      const errorBody = await fulfillRes.json().catch(() => ({}));
       return res.status(fulfillRes.status).json({
         error: `Shopify error ${fulfillRes.status}`,
-        details: errorBody
+        details: fulfillBody
       });
 
     } catch (err) {
       return res.status(500).json({ error: err.message });
     }
+  }
+
+  // GET debug: ver estructura de fulfillment_orders de una orden
+  if (req.method === 'GET' && req.query.debug_fo) {
+    const foRes = await fetch(
+      `https://${SHOP}/admin/api/2024-01/orders/${req.query.debug_fo}/fulfillment_orders.json`,
+      { headers: { 'X-Shopify-Access-Token': TOKEN } }
+    );
+    const foData = await foRes.json();
+    return res.status(200).json(foData);
   }
 
   // GET: traer pedidos pendientes
