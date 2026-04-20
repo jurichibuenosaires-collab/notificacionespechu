@@ -96,7 +96,7 @@ export default async function handler(req, res) {
   // GET: traer pedidos pendientes
   try {
     const response = await fetch(
-      `https://${SHOP}/admin/api/2024-01/orders.json?status=open&fulfillment_status=unfulfilled&financial_status=any&limit=50`,
+      `https://${SHOP}/admin/api/2024-01/orders.json?status=open&fulfillment_status=unfulfilled&financial_status=paid&limit=50`,
       { headers: { 'X-Shopify-Access-Token': TOKEN } }
     );
 
