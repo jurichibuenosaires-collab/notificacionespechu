@@ -275,9 +275,9 @@ document.getElementById('m-time').textContent = fmt(o.created_at) + ' · ' + ela
 // Detectar tipo de entrega
 const shippingTitle = (o.shipping_lines?.[0]?.title || '').toLowerCase();
 const isPickup = shippingTitle.includes('pickup') || shippingTitle.includes('pick up') ||
-shippingTitle.includes('retiro') || shippingTitle.includes('local') ||
-shippingTitle.includes('en tienda') || !o.requires_shipping ||
-(o.shipping_lines?.length === 0 && !o.shipping_address?.address1);
+shippingTitle.includes('retiro') || shippingTitle.includes('retira') ||
+shippingTitle.includes('en tienda') ||
+(!o.shipping_address?.address1 && !shippingTitle.includes('delivery'));
 
 // Banner de tipo de entrega
 const bannerEl = document.getElementById('m-delivery-banner');
@@ -402,9 +402,9 @@ const phone = o.phone || o.billing_address?.phone || o.shipping_address?.phone |
 // Detectar tipo de entrega para mostrar en la card
 const shippingTitle = (o.shipping_lines?.[0]?.title || '').toLowerCase();
 const isPickup = shippingTitle.includes('pickup') || shippingTitle.includes('pick up') ||
-shippingTitle.includes('retiro') || shippingTitle.includes('local') ||
-shippingTitle.includes('en tienda') || !o.requires_shipping ||
-(o.shipping_lines?.length === 0 && !o.shipping_address?.address1);
+shippingTitle.includes('retiro') || shippingTitle.includes('retira') ||
+shippingTitle.includes('en tienda') ||
+(!o.shipping_address?.address1 && !shippingTitle.includes('delivery'));
 const deliveryBadge = isPickup
 ? '<span style="font-size:11px;background:#002a1a;color:#4ade80;padding:2px 8px;border-radius:10px;font-weight:600">Pick Up</span>'
 : '<span style="font-size:11px;background:#001a2a;color:#60a5fa;padding:2px 8px;border-radius:10px;font-weight:600">Envío</span>';
