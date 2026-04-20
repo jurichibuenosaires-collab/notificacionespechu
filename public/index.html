@@ -14,6 +14,7 @@
 --border:#2a2a2a;
 --accent:#E8FF47;
 --red:#ff4d4d;
+--orange:#ff8c00;
 --text:#f0f0f0;
 --muted:#555;
 --muted2:#777;
@@ -43,6 +44,8 @@ main{padding:20px;max-width:1100px;margin:0 auto}
 @keyframes flash{0%{box-shadow:0 0 0 1px var(--accent),0 0 20px #e8ff4740}100%{box-shadow:none;border-color:var(--border)}}
 @keyframes pop{from{opacity:0;transform:scale(.95) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
 .card.done{opacity:.4;transform:scale(.97);pointer-events:none}
+.card.received{border-color:#ff8c00;box-shadow:0 0 0 1px #ff8c0040}
+.card.received .card-top{background:#1a1000}
 .card-top{padding:16px 18px 12px;display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid var(--border)}
 .order-num{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--accent);letter-spacing:-1px;line-height:1}
 .order-time{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted2);margin-top:4px}
@@ -57,8 +60,12 @@ main{padding:20px;max-width:1100px;margin:0 auto}
 .iprop{font-size:12px;color:var(--muted2);font-style:italic;padding-left:32px}
 .note-box{margin:0 18px 12px;background:#1e1800;border:1px solid #f59e0b25;border-radius:8px;padding:8px 12px;font-size:12px;color:#fbbf24;display:flex;gap:8px}
 .divider{height:1px;background:var(--border);margin:0 18px}
-.btn-listo{display:block;width:calc(100% - 36px);margin:14px 18px 16px;padding:15px;background:var(--accent);color:#000;font-family:'Figtree',sans-serif;font-size:15px;font-weight:700;border:none;border-radius:10px;cursor:pointer;letter-spacing:.3px;transition:opacity .15s,transform .1s}
+.btn-recibido{display:block;width:calc(100% - 36px);margin:14px 18px 6px;padding:15px;background:#ff8c00;color:#000;font-family:'Figtree',sans-serif;font-size:15px;font-weight:700;border:none;border-radius:10px;cursor:pointer;letter-spacing:.3px;transition:opacity .15s,transform .1s;animation:pulseBtn 1.2s ease-in-out infinite}
+.btn-recibido:active{opacity:.85;transform:scale(.98)}
+@keyframes pulseBtn{0%,100%{box-shadow:0 0 0 0 #ff8c0060}50%{box-shadow:0 0 0 8px #ff8c0000}}
+.btn-listo{display:block;width:calc(100% - 36px);margin:6px 18px 16px;padding:15px;background:var(--accent);color:#000;font-family:'Figtree',sans-serif;font-size:15px;font-weight:700;border:none;border-radius:10px;cursor:pointer;letter-spacing:.3px;transition:opacity .15s,transform .1s}
 .btn-listo:active{opacity:.85;transform:scale(.98)}
+.estado-recibido{display:block;width:calc(100% - 36px);margin:14px 18px 6px;padding:10px 18px;background:#1a1000;border:1px solid #ff8c0040;color:#ff8c00;font-family:'DM Mono',monospace;font-size:13px;font-weight:500;border-radius:10px;text-align:center}
 .error-bar{background:#1a0606;border:1px solid #ff4d4d25;color:#ff8080;padding:10px 16px;border-radius:10px;font-size:13px;margin-bottom:16px;display:none}
 .error-bar.on{display:block}
 .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--surface);border:1px solid var(--border);color:var(--text);padding:11px 20px;border-radius:10px;font-size:14px;font-weight:500;transition:transform .3s ease;z-index:9999;max-width:90vw;white-space:normal;text-align:center}
@@ -86,9 +93,18 @@ main{padding:20px;max-width:1100px;margin:0 auto}
 .tag-envio{display:inline-block;background:#001a2a;color:#60a5fa;border:1px solid #60a5fa30;padding:4px 12px;border-radius:20px;font-size:13px;font-weight:600}
 .modal-items{display:flex;flex-direction:column;gap:8px}
 .modal-item{display:flex;gap:10px;align-items:baseline}
-.modal-btn-listo{display:block;width:calc(100% - 40px);margin:8px 20px 16px;padding:16px;background:var(--accent);color:#000;font-family:'Figtree',sans-serif;font-size:16px;font-weight:700;border:none;border-radius:12px;cursor:pointer;letter-spacing:.3px;transition:opacity .15s,transform .1s}
+.modal-btn-recibido{display:block;width:calc(100% - 40px);margin:8px 20px 4px;padding:16px;background:#ff8c00;color:#000;font-family:'Figtree',sans-serif;font-size:16px;font-weight:700;border:none;border-radius:12px;cursor:pointer;letter-spacing:.3px;transition:opacity .15s,transform .1s;animation:pulseBtn 1.2s ease-in-out infinite}
+.modal-btn-recibido:active{opacity:.85;transform:scale(.98)}
+.modal-btn-listo{display:block;width:calc(100% - 40px);margin:4px 20px 16px;padding:16px;background:var(--accent);color:#000;font-family:'Figtree',sans-serif;font-size:16px;font-weight:700;border:none;border-radius:12px;cursor:pointer;letter-spacing:.3px;transition:opacity .15s,transform .1s}
 .modal-btn-listo:active{opacity:.85;transform:scale(.98)}
+.modal-estado-recibido{display:block;width:calc(100% - 40px);margin:8px 20px 4px;padding:12px 20px;background:#1a1000;border:1px solid #ff8c0040;color:#ff8c00;font-family:'DM Mono',monospace;font-size:14px;font-weight:500;border-radius:12px;text-align:center}
 .modal-note{background:#1e1800;border:1px solid #f59e0b25;border-radius:8px;padding:10px 12px;font-size:13px;color:#fbbf24}
+.delivery-banner{background:#001a2a;border:1px solid #60a5fa30;border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;color:#60a5fa}
+.delivery-banner.pickup{background:#002a1a;border-color:#4ade8030;color:#4ade80}
+.m-address-block{font-size:14px;color:var(--text);line-height:1.7}
+.m-address-block .addr-line{display:flex;gap:8px;align-items:flex-start;margin-bottom:2px}
+.m-address-block .addr-icon{font-size:13px;margin-top:1px;flex-shrink:0}
+.m-address-block .addr-label{font-size:10px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
 </style>
 </head>
 <body>
@@ -123,24 +139,28 @@ main{padding:20px;max-width:1100px;margin:0 auto}
 </div>
 <button class="modal-close" onclick="closeModalDirect()">✕</button>
 </div>
+<div class="modal-section" id="m-delivery-banner" style="display:none;padding:12px 20px">
+<!-- banner envío, se llena por JS -->
+</div>
 <div class="modal-section">
 <div class="modal-label">Cliente</div>
 <div class="modal-value" id="m-name"></div>
 <div class="modal-value muted" id="m-contact"></div>
 </div>
-<div class="modal-section" id="m-delivery-section">
-<div class="modal-label">Entrega</div>
-<div id="m-delivery-type"></div>
-<div class="modal-value muted" id="m-address" style="margin-top:8px"></div>
+<div class="modal-section" id="m-address-section" style="display:none">
+<div class="modal-label">Dirección de entrega</div>
+<div class="modal-value" id="m-address" style="line-height:1.6"></div>
 </div>
 <div class="modal-section" id="m-note-section" style="display:none">
-<div class="modal-label">Nota del pedido</div>
+<div class="modal-label">Nota del cliente</div>
 <div class="modal-note" id="m-note"></div>
 </div>
 <div class="modal-section">
 <div class="modal-label">Productos</div>
 <div class="modal-items" id="m-items"></div>
 </div>
+<button class="modal-btn-recibido" id="m-btn-recibido" style="display:none">👀 &nbsp;Recibido — en preparación</button>
+<div class="modal-estado-recibido" id="m-estado-recibido" style="display:none">🟠 En preparación...</div>
 <button class="modal-btn-listo" id="m-btn-listo">✓ &nbsp;Listo para entregar</button>
 </div>
 </div>
@@ -149,14 +169,17 @@ main{padding:20px;max-width:1100px;margin:0 auto}
 <script>
 const API = '/api/orders';
 let known = {};
+let receivedIds = new Set(); // pedidos marcados como recibidos en cocina
 let audioCtx = null;
 let firstLoad = true;
 let currentModalId = null;
+let bellInterval = null; // intervalo del timbre continuo
 
 function getAudioCtx() {
 if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 return audioCtx;
 }
+
 function playBell() {
 try {
 const ctx = getAudioCtx();
@@ -173,6 +196,54 @@ osc.start(t + delay);
 osc.stop(t + delay + 1.8);
 });
 } catch(e) {}
+}
+
+// Chequea si hay pedidos pendientes (no recibidos), activa o detiene el timbre
+function updateBellLoop() {
+const pendingCount = Object.keys(known).filter(id => !receivedIds.has(String(id))).length;
+if (pendingCount > 0) {
+if (!bellInterval) {
+playBell();
+bellInterval = setInterval(playBell, 4000);
+}
+} else {
+stopBell();
+}
+}
+
+function stopBell() {
+if (bellInterval) {
+clearInterval(bellInterval);
+bellInterval = null;
+}
+}
+
+// Marcar pedido como "recibido en cocina" (solo interno, no llama a Shopify)
+function markReceived(id) {
+receivedIds.add(String(id));
+// Actualizar card
+const card = document.getElementById(`o-${id}`);
+if (card) {
+card.classList.add('received');
+// Reemplazar btn-recibido por estado, dejar btn-listo
+const btnR = card.querySelector('.btn-recibido');
+if (btnR) {
+const estadoEl = document.createElement('div');
+estadoEl.className = 'estado-recibido';
+estadoEl.textContent = '🟠 En preparación...';
+btnR.replaceWith(estadoEl);
+}
+}
+// Actualizar modal si está abierto para este pedido
+if (currentModalId == id) {
+const mBtnR = document.getElementById('m-btn-recibido');
+const mEstado = document.getElementById('m-estado-recibido');
+if (mBtnR) mBtnR.style.display = 'none';
+if (mEstado) mEstado.style.display = '';
+}
+// Ver si ya no quedan pendientes → detener timbre
+updateBellLoop();
+toast('Pedido recibido en cocina 🟠', '', 2500);
 }
 function fmt(d) {
 return new Date(d).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
@@ -201,6 +272,23 @@ currentModalId = id;
 document.getElementById('m-num').textContent = '#' + o.order_number;
 document.getElementById('m-time').textContent = fmt(o.created_at) + ' · ' + elapsed(o.created_at);
 
+// Detectar tipo de entrega
+const shippingTitle = (o.shipping_lines?.[0]?.title || '').toLowerCase();
+const isPickup = shippingTitle.includes('pickup') || shippingTitle.includes('pick up') ||
+shippingTitle.includes('retiro') || shippingTitle.includes('local') ||
+shippingTitle.includes('en tienda') || !o.requires_shipping ||
+(o.shipping_lines?.length === 0 && !o.shipping_address?.address1);
+
+// Banner de tipo de entrega
+const bannerEl = document.getElementById('m-delivery-banner');
+if (isPickup) {
+bannerEl.style.display = '';
+bannerEl.innerHTML = '<div class="delivery-banner pickup">📍 Pick Up en local</div>';
+} else {
+bannerEl.style.display = '';
+bannerEl.innerHTML = '<div class="delivery-banner">🚚 Envío a domicilio</div>';
+}
+
 // Cliente
 const firstName = o.billing_address?.first_name || o.shipping_address?.first_name || '';
 const lastName = o.billing_address?.last_name || o.shipping_address?.last_name || '';
@@ -208,43 +296,40 @@ const fullName = [firstName, lastName].filter(Boolean).join(' ') || o.email?.spl
 document.getElementById('m-name').textContent = fullName;
 
 const phone = o.phone || o.billing_address?.phone || o.shipping_address?.phone || '';
-const contact = [phone, o.email].filter(Boolean).join(' · ');
-document.getElementById('m-contact').textContent = contact;
+const contactParts = [];
+if (phone) contactParts.push('📞 ' + phone);
+if (o.email) contactParts.push('✉ ' + o.email);
+document.getElementById('m-contact').innerHTML = contactParts.join('<br>');
 
-// Pick up o envío
-const shippingTitle = (o.shipping_lines?.[0]?.title || '').toLowerCase();
-const isPickup = shippingTitle.includes('pickup') || shippingTitle.includes('pick up') ||
-shippingTitle.includes('retiro') || shippingTitle.includes('local') ||
-shippingTitle.includes('en tienda') || !o.requires_shipping ||
-(o.shipping_lines?.length === 0 && !o.shipping_address?.address1);
-
-const deliveryEl = document.getElementById('m-delivery-type');
-const addressEl = document.getElementById('m-address');
-if (isPickup) {
-deliveryEl.innerHTML = '<span class="tag-pickup">📍 Pick Up</span>';
-const pickupDetail = o.shipping_lines?.[0]?.title || '';
-addressEl.textContent = pickupDetail && !['pickup','pick up','retiro'].includes(pickupDetail.toLowerCase()) ? pickupDetail : '';
-} else {
-deliveryEl.innerHTML = '<span class="tag-envio">🚚 Envío a domicilio</span>';
-const addr = o.shipping_address;
+// Dirección — solo si es envío a domicilio
+const addrSection = document.getElementById('m-address-section');
+const addrEl = document.getElementById('m-address');
+if (!isPickup) {
+const addr = o.shipping_address || o.billing_address;
 if (addr) {
-const parts = [
-addr.address1,
-addr.address2,
-addr.city,
-addr.province,
-addr.zip
-].filter(Boolean).join(', ');
-addressEl.textContent = parts;
+const lines = [];
+const street = [addr.address1, addr.address2].filter(Boolean).join(', piso/depto ');
+if (street) lines.push(`<div class="addr-line"><span class="addr-icon">📌</span><span>${street}</span></div>`);
+const cityLine = [addr.city, addr.province, addr.zip].filter(Boolean).join(', ');
+if (cityLine) lines.push(`<div class="addr-line"><span class="addr-icon">🏙</span><span>${cityLine}</span></div>`);
+if (addr.country && addr.country !== 'Argentina') lines.push(`<div class="addr-line"><span class="addr-icon">🌎</span><span>${addr.country}</span></div>`);
+addrEl.innerHTML = `<div class="m-address-block">${lines.join('')}</div>`;
 } else {
-addressEl.textContent = '';
+addrEl.innerHTML = '<span style="color:var(--muted)">Sin dirección registrada</span>';
 }
+addrSection.style.display = '';
+} else {
+addrSection.style.display = 'none';
 }
 
-// Nota
+// Nota del cliente
 const noteSection = document.getElementById('m-note-section');
-if (o.note) {
-document.getElementById('m-note').textContent = o.note;
+// Buscar nota en o.note Y en attributes del pedido
+const noteText = o.note || '';
+const extraAttrs = (o.note_attributes || []).filter(a => a.value).map(a => `${a.name}: ${a.value}`).join('\n');
+const fullNote = [noteText, extraAttrs].filter(Boolean).join('\n');
+if (fullNote) {
+document.getElementById('m-note').textContent = fullNote;
 noteSection.style.display = '';
 } else {
 noteSection.style.display = 'none';
@@ -258,8 +343,15 @@ const props = (i.properties||[]).filter(p => p.value)
 return `<div class="modal-item"><span class="qty">${i.quantity}×</span><span class="iname">${i.name}</span></div>${props}`;
 }).join('');
 
-// Botón
+// Botones
+const btnR = document.getElementById('m-btn-recibido');
+const estadoR = document.getElementById('m-estado-recibido');
 const btn = document.getElementById('m-btn-listo');
+
+const isReceived = receivedIds.has(String(id));
+btnR.style.display = isReceived ? 'none' : '';
+estadoR.style.display = isReceived ? '' : 'none';
+btnR.onclick = (e) => { e.stopPropagation(); markReceived(id); };
 btn.onclick = (e) => { e.stopPropagation(); markDone(id); };
 
 document.getElementById('modal-overlay').classList.add('open');
@@ -305,6 +397,7 @@ grid.prepend(card);
 const hot = isHot(o.created_at);
 const note = o.note || '';
 const customer = o.billing_address?.first_name || o.shipping_address?.first_name || o.email?.split('@')[0] || 'Cliente';
+const phone = o.phone || o.billing_address?.phone || o.shipping_address?.phone || '';
 
 // Detectar tipo de entrega para mostrar en la card
 const shippingTitle = (o.shipping_lines?.[0]?.title || '').toLowerCase();
@@ -316,6 +409,8 @@ const deliveryBadge = isPickup
 ? '<span style="font-size:11px;background:#002a1a;color:#4ade80;padding:2px 8px;border-radius:10px;font-weight:600">Pick Up</span>'
 : '<span style="font-size:11px;background:#001a2a;color:#60a5fa;padding:2px 8px;border-radius:10px;font-weight:600">Envío</span>';
 
+const isReceived = receivedIds.has(String(o.id));
+if (isReceived) card.classList.add('received');
 const items = o.line_items.map(i => {
 const props = (i.properties||[]).filter(p => p.value).map(p =>
 `<div class="iprop">${p.name}: ${p.value}</div>`
@@ -328,14 +423,23 @@ card.innerHTML = `
 <div class="order-num">#${o.order_number}</div>
 <div class="order-time">${fmt(o.created_at)}</div>
 </div>
+<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
 <div class="timer ${hot?'hot':''}" data-t="${o.created_at}">${elapsed(o.created_at)}</div>
+${deliveryBadge}
 </div>
-<div class="card-customer" style="display:flex;justify-content:space-between;align-items:center;padding-right:18px">
-<strong>${customer}</strong>${deliveryBadge}
+</div>
+<div class="card-customer">
+<strong>${customer}</strong>
+${!isPickup && (o.shipping_address?.address1 || o.billing_address?.address1) ? `<div style="font-size:12px;color:var(--muted2);margin-top:3px">📌 ${(o.shipping_address?.address1 || o.billing_address?.address1)}</div>` : ''}
+${phone ? `<div style="font-size:12px;color:var(--muted2);margin-top:2px">📞 ${phone}</div>` : ''}
 </div>
 <div class="items">${items}</div>
 ${note ? `<div class="note-box">⚠ ${note}</div>` : ''}
 <div class="divider"></div>
+${isReceived
+  ? `<div class="estado-recibido">🟠 En preparación...</div>`
+  : `<button class="btn-recibido" onclick="event.stopPropagation();markReceived(${o.id})">👀 &nbsp;Recibido — en preparación</button>`
+}
 <button class="btn-listo" onclick="event.stopPropagation();markDone(${o.id})">✓ &nbsp;Listo para entregar</button>
 `;
 });
@@ -364,7 +468,9 @@ body: JSON.stringify({orderId: id, action:'fulfill'})
 const data = await r.json().catch(() => ({}));
 if (r.ok && data.ok) {
 delete known[id];
+receivedIds.delete(String(id));
 renderAll();
+updateBellLoop();
 toast('Pedido entregado ✓', 'ok');
 } else {
 throw new Error(data.error || data.details?.errors || `Error ${r.status}`);
@@ -390,9 +496,14 @@ const incoming = {};
 (data.orders || []).forEach(o => { incoming[o.id] = o; });
 let hasNew = false;
 Object.keys(incoming).forEach(id => { if (!known[id]) hasNew = true; });
-if (hasNew && !firstLoad) playBell();
+// Limpiar receivedIds que ya no existen (fueron fulfillados)
+for (const id of receivedIds) {
+  if (!incoming[id]) receivedIds.delete(id);
+}
 known = incoming;
 renderAll();
+if (hasNew && !firstLoad) updateBellLoop();
+else if (!firstLoad) updateBellLoop();
 firstLoad = false;
 } catch(e) {
 dot.className = 'dot off';
