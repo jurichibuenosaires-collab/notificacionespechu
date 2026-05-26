@@ -1,3 +1,7 @@
+export const config = {
+  api: { bodyParser: true }
+};
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -15,8 +19,15 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'POST') {
-    const { orderId, action } = req.body;
-    if (!orderId) return res.status(400).json({ error: 'orderId requerido' });
+    let body = req.body;
+    if (typeof body === 'string') {
+      try { body = JSON.parse(body); } catch(e) {
+        return res.status(400).json({ error: 'JSON inválido: ' + e.message });
+      }
+    }
+
+    const { orderId, action } = body || {};
+    if (!orderId) return res.status(400).json({ error: 'orderId requerido, body: ' + JSON.stringify(body) });
 
     try {
       if (action === 'fulfill') {
@@ -58,6 +69,7 @@ export default async function handler(req, res) {
     }
   }
 
+  // GET - traer solo pedidos pendientes de entrega
   try {
     const response = await fetch(
       `https://${SHOP}/admin/api/2024-01/orders.json?status=open&fulfillment_status=unfulfilled&limit=50`,
