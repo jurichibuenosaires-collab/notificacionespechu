@@ -429,10 +429,10 @@ function renderPendientes() {
 
     // Método de envío
     const shippingLine = o.shipping_lines?.[0]?.title || '';
-    const esDelivery = shippingLine && !/pickup|retiro|local|mostrador/i.test(shippingLine);
+    const esDelivery = !!shippingLine;
     const shippingBadge = shippingLine
-      ? `<span class="ship-badge ${esDelivery?'delivery':'pickup'}">${esDelivery?'🛵 Delivery':'🏪 Retiro'}</span>`
-      : '';
+      ? `<span class="ship-badge delivery">🛵 Delivery</span>`
+      : `<span class="ship-badge pickup">🏪 Retiro</span>`;
 
     const items = o.line_items.map(i=>{
       const props=(i.properties||[]).filter(p=>p.value).map(p=>`<div class="iprop">${p.name}: ${p.value}</div>`).join('');
