@@ -1,5 +1,7 @@
 export const config = {
-  api: { bodyParser: true }
+  api: {
+    bodyParser: false
+  }
 };
 
 export default async function handler(req, res) {
@@ -19,15 +21,23 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'POST') {
-    let body = req.body;
-    if (typeof body === 'string') {
-      try { body = JSON.parse(body); } catch(e) {
-        return res.status(400).json({ error: 'JSON inválido: ' + e.message });
-      }
+    // Leer body manualmente
+    const rawBody = await new Promise((resolve, reject) => {
+      let data = '';
+      req.on('data', chunk => { data += chunk; });
+      req.on('end', () => resolve(data));
+      req.on('error', reject);
+    });
+
+    let body;
+    try {
+      body = JSON.parse(rawBody);
+    } catch(e) {
+      return res.status(400).json({ error: 'JSON parse error: ' + e.message, raw: rawBody });
     }
 
     const { orderId, action } = body || {};
-    if (!orderId) return res.status(400).json({ error: 'orderId requerido, body: ' + JSON.stringify(body) });
+    if (!orderId) return res.status(400).json({ error: 'orderId requerido' });
 
     try {
       if (action === 'fulfill') {
