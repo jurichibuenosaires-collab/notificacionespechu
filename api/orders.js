@@ -1,7 +1,5 @@
 export const config = {
-  api: {
-    bodyParser: false
-  }
+  api: { bodyParser: false }
 };
 
 export default async function handler(req, res) {
@@ -9,19 +7,14 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+  if (req.method === 'OPTIONS') return res.status(200).end();
 
   const SHOP = 'pechufreeglutenfree.myshopify.com';
   const TOKEN = process.env.SHOPIFY_ADMIN_TOKEN;
 
-  if (!TOKEN) {
-    return res.status(500).json({ error: 'Token no configurado' });
-  }
+  if (!TOKEN) return res.status(500).json({ error: 'Token no configurado' });
 
   if (req.method === 'POST') {
-    // Leer body manualmente
     const rawBody = await new Promise((resolve, reject) => {
       let data = '';
       req.on('data', chunk => { data += chunk; });
@@ -30,47 +23,57 @@ export default async function handler(req, res) {
     });
 
     let body;
-    try {
-      body = JSON.parse(rawBody);
-    } catch(e) {
-      return res.status(400).json({ error: 'JSON parse error: ' + e.message, raw: rawBody });
-    }
+    try { body = JSON.parse(rawBody); }
+    catch(e) { return res.status(400).json({ error: 'JSON parse error', raw: rawBody }); }
 
     const { orderId, action } = body || {};
     if (!orderId) return res.status(400).json({ error: 'orderId requerido' });
 
     try {
-      if (action === 'fulfill') {
-        const orderRes = await fetch(
-          `https://${SHOP}/admin/api/2024-01/orders/${orderId}.json`,
-          { headers: { 'X-Shopify-Access-Token': TOKEN } }
-        );
-        const orderData = await orderRes.json();
-        const order = orderData.order;
+      // Paso 1: obtener fulfillment_orders
+      const foRes = await fetch(
+        `https://${SHOP}/admin/api/2024-01/orders/${orderId}/fulfillment_orders.json`,
+        { headers: { 'X-Shopify-Access-Token': TOKEN } }
+      );
+      const foText = await foRes.text();
+      
+      let foData;
+      try { foData = JSON.parse(foText); }
+      catch(e) { return res.status(500).json({ error: 'fo parse error', raw: foText }); }
 
-        if (!order) return res.status(404).json({ error: 'Pedido no encontrado' });
+      const openOrders = (foData.fulfillment_orders || []).filter(fo => fo.status === 'open');
 
-        const fulfillRes = await fetch(
-          `https://${SHOP}/admin/api/2024-01/orders/${orderId}/fulfillments.json`,
-          {
-            method: 'POST',
-            headers: {
-              'X-Shopify-Access-Token': TOKEN,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              fulfillment: {
-                notify_customer: false,
-                line_items: order.line_items.map(i => ({ id: i.id }))
-              }
-            }),
-          }
-        );
+      if (openOrders.length === 0) {
+        return res.status(200).json({ ok: true, msg: 'Sin fulfillment orders abiertas' });
+      }
 
-        const fulfillData = await fulfillRes.json();
-        if (!fulfillRes.ok) {
-          return res.status(fulfillRes.status).json({ error: JSON.stringify(fulfillData) });
+      // Paso 2: crear fulfillment
+      const fulfillRes = await fetch(
+        `https://${SHOP}/admin/api/2024-01/fulfillments.json`,
+        {
+          method: 'POST',
+          headers: {
+            'X-Shopify-Access-Token': TOKEN,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            fulfillment: {
+              notify_customer: false,
+              line_items_by_fulfillment_order: openOrders.map(fo => ({
+                fulfillment_order_id: fo.id
+              }))
+            }
+          }),
         }
+      );
+
+      const fulfillText = await fulfillRes.text();
+      let fulfillData;
+      try { fulfillData = JSON.parse(fulfillText); }
+      catch(e) { return res.status(500).json({ error: 'fulfill parse error', raw: fulfillText }); }
+
+      if (!fulfillRes.ok) {
+        return res.status(fulfillRes.status).json({ error: fulfillData });
       }
 
       return res.status(200).json({ ok: true });
@@ -79,18 +82,16 @@ export default async function handler(req, res) {
     }
   }
 
-  // GET - traer solo pedidos pendientes de entrega
+  // GET
   try {
     const response = await fetch(
       `https://${SHOP}/admin/api/2024-01/orders.json?status=open&fulfillment_status=unfulfilled&limit=50`,
       { headers: { 'X-Shopify-Access-Token': TOKEN } }
     );
-
     if (!response.ok) {
       const text = await response.text();
       return res.status(response.status).json({ error: text });
     }
-
     const data = await response.json();
     return res.status(200).json(data);
   } catch (err) {
