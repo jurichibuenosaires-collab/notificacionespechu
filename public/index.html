@@ -253,17 +253,35 @@ main{padding:16px;max-width:1200px;margin:0 auto}
 <script>
 const API = '/api/orders';
 let known = {};
-let historial = [];
 let firstLoad = true;
 let bellInterval = null;
 let silenciado = false;
 let audioCtx = null;
 let currentTab = 'pendientes';
-let tiemposEntrega = [];
 
-// Stats
-let statTotal = 0;
-let statDone = 0;
+// Stats y historial — persistidos en localStorage
+const HOY = new Date().toDateString();
+function cargarStorage() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('pf_historial') || '{}');
+    if (saved.fecha !== HOY) return { fecha: HOY, items: [], tiempos: [], total: 0, done: 0 };
+    return saved;
+  } catch(e) { return { fecha: HOY, items: [], tiempos: [], total: 0, done: 0 }; }
+}
+function guardarStorage() {
+  try {
+    localStorage.setItem('pf_historial', JSON.stringify({
+      fecha: HOY, items: historial, tiempos: tiemposEntrega,
+      total: statTotal, done: statDone
+    }));
+  } catch(e) {}
+}
+
+const storage = cargarStorage();
+let historial = storage.items || [];
+let tiemposEntrega = storage.tiempos || [];
+let statTotal = storage.total || 0;
+let statDone = storage.done || 0;
 
 function getAudioCtx() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -429,10 +447,12 @@ function renderPendientes() {
 
     // Método de envío
     const shippingLine = o.shipping_lines?.[0]?.title || '';
-    const esDelivery = !!shippingLine;
-    const shippingBadge = shippingLine
-      ? `<span class="ship-badge delivery">🛵 Delivery</span>`
-      : `<span class="ship-badge pickup">🏪 Retiro</span>`;
+    const esRetiro = /retiro|pickup|retirar|recog/i.test(shippingLine);
+    const shippingBadge = esRetiro
+      ? `<span class="ship-badge pickup">🏪 Retiro</span>`
+      : shippingLine
+        ? `<span class="ship-badge delivery">🛵 Delivery</span>`
+        : `<span class="ship-badge pickup">🏪 Retiro</span>`;
 
     const items = o.line_items.map(i=>{
       const props=(i.properties||[]).filter(p=>p.value).map(p=>`<div class="iprop">${p.name}: ${p.value}</div>`).join('');
@@ -493,7 +513,7 @@ async function markDone(id, customer, items, orderNum, createdAt) {
     const r = await fetch(API,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({orderId:id,action:'fulfill'})
+      body:JSON.stringify({orderId:String(id),action:'fulfill'})
     });
     if (r.ok) {
       const mins = Math.floor((Date.now()-new Date(createdAt))/60000);
@@ -506,6 +526,7 @@ async function markDone(id, customer, items, orderNum, createdAt) {
         delivered_at: fmt(new Date()),
         tiempo: mins
       });
+      guardarStorage();
       delete known[id];
       renderPendientes();
       renderHistorial();
@@ -532,7 +553,10 @@ async function fetchOrders() {
     let hasNew = false;
     Object.keys(incoming).forEach(id=>{ if(!known[id]) { hasNew=true; statTotal++; } });
 
-    if (hasNew && !firstLoad) { silenciado=false; iniciarAlertas(); }
+    if (hasNew && !firstLoad) {
+      guardarStorage();
+      silenciado=false; iniciarAlertas();
+    }
 
     known = incoming;
     renderPendientes();
